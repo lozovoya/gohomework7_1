@@ -23,6 +23,7 @@ func main() {
 
 	const maxAmount = 1_000_000
 	const numberOfTransactions = 1000000
+	const parts = 1000
 
 	mccList := card.Mcc{
 		"5010": "Финансы",
@@ -48,14 +49,20 @@ func main() {
 		fmt.Println(card.ErrorTransactionFulfill)
 		os.Exit(2)
 	}
-	//fmt.Println(transactions)
 
-	ts, err := card.SumByCategories(&transactions, 0)
+	//ts, err := card.SumByCategories(&transactions, 0)
+	//if err != nil {
+	//	fmt.Println(card.ErrorSummary)
+	//	os.Exit(2)
+	//}
+	//fmt.Println("for user:", userList[0])
+	//fmt.Println("Transactions summary:", ts)
+
+	ts, err := card.SumByCategoriesWithMutex(&transactions, 0, parts)
 	if err != nil {
 		fmt.Println(card.ErrorSummary)
 		os.Exit(2)
 	}
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary:", ts)
-
 }

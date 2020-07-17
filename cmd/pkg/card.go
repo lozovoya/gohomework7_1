@@ -2,13 +2,13 @@ package card
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
 var ErrorTransactionFulfill = errors.New("Slice of transactions is empty after generating func")
-var ErrorSummary = errors.New("Wrong suumaring")
+var ErrorSummary = errors.New("Wrong summaring")
 
 type Transaction struct {
 	OwnerId int
@@ -28,7 +28,6 @@ func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mc
 		mccTemp[i] = m
 		i++
 	}
-	fmt.Println(mccTemp)
 
 	for i := int64(0); i < amount; i++ {
 		rand.Seed(int64(time.Now().Nanosecond()))
@@ -56,5 +55,35 @@ func SumByCategories(transactions *[]Transaction, owner int) (catSum map[string]
 	if catSum == nil {
 		return catSum, ErrorSummary
 	}
+	return catSum, nil
+}
+
+func SumByCategoriesWithMutex(transactions *[]Transaction, owner int, parts int32) (catSum map[string]int64, error error) {
+
+	wg := sync.WaitGroup{}
+	wg.Add(int(parts))
+	mu := sync.Mutex{}
+
+	catSum = make(map[string]int64, 10)
+	input := *transactions
+	partSize := int32(len(*transactions)) / parts
+
+	for i := int32(0); i < parts; i++ {
+		part := input[i*partSize : (i+1)*partSize]
+		//fmt.Println(part)
+		go func() {
+			partSum, _ := SumByCategories(&part, owner)
+			mu.Lock()
+			for key, value := range partSum {
+				catSum[key] += value
+			}
+			//	fmt.Println("inside mutex", catSum)
+			mu.Unlock()
+			wg.Done()
+			//fmt.Println(partSum)
+		}()
+	}
+	wg.Wait()
+	//fmt.Println("output", catSum)
 	return catSum, nil
 }
