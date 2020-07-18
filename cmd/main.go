@@ -22,8 +22,8 @@ func main() {
 	defer trace.Stop()
 
 	const maxAmount = 1_000_000
-	const numberOfTransactions = 1000000
-	const parts = 1000
+	const numberOfTransactions = 100
+	const parts = 2
 
 	mccList := card.Mcc{
 		"5010": "Финансы",
@@ -44,21 +44,29 @@ func main() {
 	transactions := make([]card.Transaction, 0, numberOfTransactions)
 	transactions = nil
 
-	err = card.GenerateTransactions(&transactions, maxAmount, numberOfTransactions, mccList, userList)
+	err = card.GenerateTransactions(&transactions, maxAmount, numberOfTransactions, mccList, userList, parts)
 	if err != nil {
 		fmt.Println(card.ErrorTransactionFulfill)
 		os.Exit(2)
 	}
 
-	//ts, err := card.SumByCategories(&transactions, 0)
-	//if err != nil {
-	//	fmt.Println(card.ErrorSummary)
-	//	os.Exit(2)
-	//}
-	//fmt.Println("for user:", userList[0])
-	//fmt.Println("Transactions summary:", ts)
+	ts, err := card.SumByCategories(&transactions, 0)
+	if err != nil {
+		fmt.Println(card.ErrorSummary)
+		os.Exit(2)
+	}
+	fmt.Println("for user:", userList[0])
+	fmt.Println("Transactions summary:", ts)
 
-	ts, err := card.SumByCategoriesWithMutex(&transactions, 0, parts)
+	ts, err = card.SumByCategoriesWithMutex(&transactions, 0, parts)
+	if err != nil {
+		fmt.Println(card.ErrorSummary)
+		os.Exit(2)
+	}
+	fmt.Println("for user:", userList[0])
+	fmt.Println("Transactions summary:", ts)
+
+	ts, err = card.SumByCategoriesWithChannels(&transactions, 0, parts)
 	if err != nil {
 		fmt.Println(card.ErrorSummary)
 		os.Exit(2)

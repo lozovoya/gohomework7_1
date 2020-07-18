@@ -2,6 +2,7 @@ package card
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"sync"
 	"time"
@@ -20,7 +21,7 @@ type Transaction struct {
 type Mcc map[string]string
 type User map[int]string
 
-func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mccList Mcc, userList User) error {
+func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mccList Mcc, userList User, parts int32) error {
 
 	var mccTemp = make(map[int]string)
 	i := 0
@@ -29,14 +30,30 @@ func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mc
 		i++
 	}
 
+	//wg := sync.WaitGroup{}
+	//wg.Add(int(parts))
+	//mu := sync.Mutex{}
+	//
+	//partSize := (int32(amount)/parts)
+	//
+	//for i := 0; i < parts; i++ {
+	//	rand.Seed(int64(time.Now().Nanosecond()))
+	//}
 	for i := int64(0); i < amount; i++ {
 		rand.Seed(int64(time.Now().Nanosecond()))
-		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), Mcc: mccTemp[rand.Intn(len(mccTemp))]}
-		//t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: 1, Mcc: mccTemp[rand.Intn(len(mccTemp))]}
+		//t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), Mcc: mccTemp[rand.Intn(len(mccTemp))]}
+		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: 1, Mcc: mccTemp[rand.Intn(len(mccTemp))]}
 		//fmt.Println(t)
+		//go func() {
+		//	mu.Lock()
 		*transactions = append(*transactions, t)
+		//	mu.Unlock()
+		//	wg.Done()
+		//}()
+
 		//transactions[index].Amount = 1
 	}
+	//wg.Wait()
 	if *transactions == nil {
 		return ErrorTransactionFulfill
 	}
@@ -87,3 +104,40 @@ func SumByCategoriesWithMutex(transactions *[]Transaction, owner int, parts int3
 	//fmt.Println("output", catSum)
 	return catSum, nil
 }
+
+func SumByCategoriesWithChannels(transactions *[]Transaction, owner int, parts int32) (catSum map[string]int64, error error) {
+
+	catSum = make(map[string]int64, 10)
+	input := *transactions
+	partSize := int32(len(*transactions)) / parts
+	result := make(chan map[string]int64)
+
+	for i := int32(0); i < parts; i++ {
+		part := input[i*partSize : (i+1)*partSize]
+		go func() {
+			partSum, _ := SumByCategories(&part, owner)
+			result <- partSum
+		}()
+	}
+
+	finished := int32(0)
+	for value := range result {
+		v := value
+		finished++
+		fmt.Println("value", v)
+		if finished == partSize {
+			close(result)
+			break
+		}
+	}
+
+	return catSum, nil
+
+}
+
+//func sum2 (transactions *[]Transaction, owner int, result <- chan map[string]int64) {
+//
+//	go func() {
+//		result <- stats.Sum(transactions)
+//	}()
+//}
