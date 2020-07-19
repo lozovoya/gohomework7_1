@@ -12,14 +12,7 @@ func TestSumByCategories(t *testing.T) {
 		owner        int
 	}
 
-	tr := []Transaction{
-		{OwnerId: 0, Amount: 100, Mcc: "5010"},
-		{OwnerId: 1, Amount: 100, Mcc: "5010"},
-		{OwnerId: 0, Amount: 100, Mcc: "5020"},
-		{OwnerId: 0, Amount: 100, Mcc: "5010"},
-		{OwnerId: 1, Amount: 100, Mcc: "5010"},
-	}
-
+	transactions := makeTestTransactions()
 	tests := []struct {
 		name       string
 		args       args
@@ -29,23 +22,149 @@ func TestSumByCategories(t *testing.T) {
 		{
 			name: "По соточке",
 			args: args{
-				transactions: &tr,
+				transactions: &transactions,
 				owner:        0,
 			},
 			wantCatSum: map[string]int64{
-				"5010": 200,
-				"5020": 100,
+				"5010": 100000000,
+				"5020": 200000000,
 			},
 			wantErr: nil,
 		},
 	}
 
-	transactions := makeTestTransactions()
-	fmt.Println(SumByCategories(&transactions, 0))
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotCatSum, err := SumByCategories(tt.args.transactions, tt.args.owner)
+			if err != tt.wantErr {
+				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
+				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
+			}
+		})
+	}
+}
+
+func TestSumByCategoriesWithMutex(t *testing.T) {
+	type args struct {
+		transactions *[]Transaction
+		owner        int
+		parts        int32
+	}
+
+	transactions := makeTestTransactions()
+	tests := []struct {
+		name       string
+		args       args
+		wantCatSum map[string]int64
+		wantErr    error
+	}{
+		{
+			name: "По соточке",
+			args: args{
+				transactions: &transactions,
+				owner:        0,
+				parts:        100,
+			},
+			wantCatSum: map[string]int64{
+				"5010": 100000000,
+				"5020": 200000000,
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotCatSum, err := SumByCategoriesWithMutex(tt.args.transactions, tt.args.owner, tt.args.parts)
+			if err != tt.wantErr {
+				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
+				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
+			}
+		})
+	}
+}
+
+func TestSumByCategoriesWithChannels(t *testing.T) {
+	type args struct {
+		transactions *[]Transaction
+		owner        int
+		parts        int32
+	}
+
+	transactions := makeTestTransactions()
+	tests := []struct {
+		name       string
+		args       args
+		wantCatSum map[string]int64
+		wantErr    error
+	}{
+		{
+			name: "По соточке",
+			args: args{
+				transactions: &transactions,
+				owner:        0,
+				parts:        100,
+			},
+			wantCatSum: map[string]int64{
+				"5010": 100000000,
+				"5020": 200000000,
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotCatSum, err := SumByCategoriesWithChannels(tt.args.transactions, tt.args.owner, tt.args.parts)
+			if err != tt.wantErr {
+				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
+				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
+			}
+		})
+	}
+}
+
+func TestSumByCategoriesWithMutex2(t *testing.T) {
+	type args struct {
+		transactions *[]Transaction
+		owner        int
+		parts        int32
+	}
+
+	transactions := makeTestTransactions()
+	tests := []struct {
+		name       string
+		args       args
+		wantCatSum map[string]int64
+		wantErr    error
+	}{
+		{
+			name: "По соточке",
+			args: args{
+				transactions: &transactions,
+				owner:        0,
+				parts:        100,
+			},
+			wantCatSum: map[string]int64{
+				"5010": 100000000,
+				"5020": 200000000,
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotCatSum, err := SumByCategoriesWithMutex2(tt.args.transactions, tt.args.owner, tt.args.parts)
 			if err != tt.wantErr {
 				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -88,6 +207,7 @@ func makeTestTransactions() []Transaction {
 			}
 		}
 	}
+	fmt.Println("transaction generating finished")
 	return transactions
 }
 

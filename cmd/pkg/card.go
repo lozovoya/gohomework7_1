@@ -2,7 +2,6 @@ package card
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"sync"
 	"time"
@@ -127,7 +126,6 @@ func SumByCategoriesWithChannels(transactions *[]Transaction, owner int, parts i
 			break
 		}
 	}
-	fmt.Println(catSum)
 	if catSum == nil {
 		return catSum, ErrorSummary
 	}
