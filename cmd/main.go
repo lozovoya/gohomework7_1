@@ -22,7 +22,7 @@ func main() {
 	defer trace.Stop()
 
 	const maxAmount = 1_000_000
-	const numberOfTransactions = 10000000
+	const numberOfTransactions = 1000000
 	const parts = 100
 
 	mccList := card.Mcc{
@@ -66,11 +66,11 @@ func main() {
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary with mutex:", ts)
 
-	ts, err = card.SumByCategoriesWithChannels(&transactions, 0, parts)
+	ts, err = card.SumByCategoriesWithMutex2(&transactions, 0, parts)
 	if err != nil {
 		fmt.Println(card.ErrorSummary)
 		os.Exit(2)
 	}
 	fmt.Println("for user:", userList[0])
-	fmt.Println("Transactions summary with channels:", ts)
+	fmt.Println("Transactions summary with mutex2:", ts)
 }

@@ -141,3 +141,35 @@ func sum2(part *[]Transaction, owner int, result chan<- map[string]int64) {
 		result <- partSum
 	}()
 }
+
+func SumByCategoriesWithMutex2(transactions *[]Transaction, owner int, parts int32) (catSum map[string]int64, error error) {
+
+	wg := sync.WaitGroup{}
+	wg.Add(int(parts))
+	mu := sync.Mutex{}
+
+	error = nil
+	catSum = make(map[string]int64, 10)
+	input := *transactions
+	partSize := int32(len(*transactions)) / parts
+
+	for i := int32(0); i < parts; i++ {
+		part := input[i*partSize : (i+1)*partSize]
+		go func() {
+			//partSum, _ := SumByCategories(&part, owner)
+			for _, t := range part {
+				if t.OwnerId == owner {
+					mu.Lock()
+					catSum[t.Mcc] = catSum[t.Mcc] + t.Amount
+					mu.Unlock()
+				}
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	if catSum == nil {
+		return catSum, ErrorSummary
+	}
+	return catSum, error
+}
