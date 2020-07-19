@@ -22,7 +22,7 @@ func main() {
 	defer trace.Stop()
 
 	const maxAmount = 1_000_000
-	const numberOfTransactions = 1000000
+	const numberOfTransactions = 10000000
 	const parts = 100
 
 	mccList := card.Mcc{

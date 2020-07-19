@@ -87,26 +87,26 @@ func SumByCategoriesWithMutex(transactions *[]Transaction, owner int, parts int3
 
 	for i := int32(0); i < parts; i++ {
 		part := input[i*partSize : (i+1)*partSize]
-		//fmt.Println(part)
 		go func() {
 			partSum, _ := SumByCategories(&part, owner)
 			mu.Lock()
 			for key, value := range partSum {
 				catSum[key] += value
 			}
-			//	fmt.Println("inside mutex", catSum)
 			mu.Unlock()
 			wg.Done()
-			//fmt.Println(partSum)
 		}()
 	}
 	wg.Wait()
-	//fmt.Println("output", catSum)
-	return catSum, nil
+	if catSum == nil {
+		return catSum, ErrorSummary
+	}
+	return catSum, error
 }
 
 func SumByCategoriesWithChannels(transactions *[]Transaction, owner int, parts int32) (catSum map[string]int64, error error) {
 
+	error = nil
 	catSum = make(map[string]int64, 5)
 	input := *transactions
 	partSize := int32(len(*transactions)) / parts
@@ -128,7 +128,10 @@ func SumByCategoriesWithChannels(transactions *[]Transaction, owner int, parts i
 		}
 	}
 	fmt.Println(catSum)
-	return catSum, nil
+	if catSum == nil {
+		return catSum, ErrorSummary
+	}
+	return catSum, error
 
 }
 
