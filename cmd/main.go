@@ -66,6 +66,14 @@ func main() {
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary with mutex:", ts)
 
+	ts, err = card.SumByCategoriesWithChannels(&transactions, 0, parts)
+	if err != nil {
+		fmt.Println(card.ErrorSummary)
+		os.Exit(2)
+	}
+	fmt.Println("for user:", userList[0])
+	fmt.Println("Transactions summary with mutex:", ts)
+
 	ts, err = card.SumByCategoriesWithMutex2(&transactions, 0, parts)
 	if err != nil {
 		fmt.Println(card.ErrorSummary)
