@@ -41,8 +41,8 @@ func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mc
 	//}
 	for i := int64(0); i < amount; i++ {
 		rand.Seed(int64(time.Now().Nanosecond()))
-		//t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), Mcc: mccTemp[rand.Intn(len(mccTemp))]}
-		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: 1, Mcc: mccTemp[rand.Intn(len(mccTemp))]}
+		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), Mcc: mccTemp[rand.Intn(len(mccTemp))]}
+		//t := Transaction{OwnerId: 0, Amount: 1, Mcc: mccTemp[rand.Intn(len(mccTemp))]}
 		//fmt.Println(t)
 		//go func() {
 		//	mu.Lock()
@@ -107,37 +107,34 @@ func SumByCategoriesWithMutex(transactions *[]Transaction, owner int, parts int3
 
 func SumByCategoriesWithChannels(transactions *[]Transaction, owner int, parts int32) (catSum map[string]int64, error error) {
 
-	catSum = make(map[string]int64, 10)
+	catSum = make(map[string]int64, 5)
 	input := *transactions
 	partSize := int32(len(*transactions)) / parts
 	result := make(chan map[string]int64)
 
 	for i := int32(0); i < parts; i++ {
 		part := input[i*partSize : (i+1)*partSize]
-		go func() {
-			partSum, _ := SumByCategories(&part, owner)
-			result <- partSum
-		}()
+		sum2(&part, owner, result)
 	}
-
 	finished := int32(0)
-	for value := range result {
-		v := value
+	for sums := range result {
 		finished++
-		fmt.Println("value", v)
-		if finished == partSize {
+		for key, value := range sums {
+			catSum[key] += value
+		}
+		if finished == parts {
 			close(result)
 			break
 		}
 	}
-
+	fmt.Println(catSum)
 	return catSum, nil
 
 }
 
-//func sum2 (transactions *[]Transaction, owner int, result <- chan map[string]int64) {
-//
-//	go func() {
-//		result <- stats.Sum(transactions)
-//	}()
-//}
+func sum2(part *[]Transaction, owner int, result chan<- map[string]int64) {
+	go func() {
+		partSum, _ := SumByCategories(part, owner)
+		result <- partSum
+	}()
+}
