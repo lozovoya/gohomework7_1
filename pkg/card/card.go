@@ -1,5 +1,7 @@
 package card
 
+// Банковская карта.
+
 import (
 	"errors"
 	"math/rand"
@@ -7,20 +9,19 @@ import (
 	"time"
 )
 
-var ErrorTransactionFulfill = errors.New("Slice of transactions is empty after generating func")
-var ErrorSummary = errors.New("Wrong summaring")
+var ErrTransactionFulfill = errors.New("Slice of transactions is empty after generating func")
+var ErrSummary = errors.New("Wrong summaring")
 
 type Transaction struct {
 	OwnerId int
 	Amount  int64
-	Mcc     string
-	//Moment time.Time
+	MCC     string
 }
 
-type Mcc map[string]string
-type User map[int]string
+type MCC map[string]string
+type Users map[int]string
 
-func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mccList Mcc, userList User, parts int32) error {
+func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mccList MCC, userList Users, parts int32) error {
 
 	var mccTemp = make(map[int]string)
 	i := 0
@@ -29,32 +30,15 @@ func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mc
 		i++
 	}
 
-	//wg := sync.WaitGroup{}
-	//wg.Add(int(parts))
-	//mu := sync.Mutex{}
-	//
-	//partSize := (int32(amount)/parts)
-	//
-	//for i := 0; i < parts; i++ {
-	//	rand.Seed(int64(time.Now().Nanosecond()))
-	//}
 	for i := int64(0); i < amount; i++ {
 		rand.Seed(int64(time.Now().Nanosecond()))
-		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), Mcc: mccTemp[rand.Intn(len(mccTemp))]}
-		//t := Transaction{OwnerId: 0, Amount: 1, Mcc: mccTemp[rand.Intn(len(mccTemp))]}
-		//fmt.Println(t)
-		//go func() {
-		//	mu.Lock()
-		*transactions = append(*transactions, t)
-		//	mu.Unlock()
-		//	wg.Done()
-		//}()
+		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), MCC: mccTemp[rand.Intn(len(mccTemp))]}
 
-		//transactions[index].Amount = 1
+		*transactions = append(*transactions, t)
+
 	}
-	//wg.Wait()
 	if *transactions == nil {
-		return ErrorTransactionFulfill
+		return ErrTransactionFulfill
 	}
 	return nil
 }
@@ -65,11 +49,11 @@ func SumByCategories(transactions *[]Transaction, owner int) (catSum map[string]
 	error = nil
 	for _, t := range *transactions {
 		if t.OwnerId == owner {
-			catSum[t.Mcc] = catSum[t.Mcc] + t.Amount
+			catSum[t.MCC] = catSum[t.MCC] + t.Amount
 		}
 	}
 	if catSum == nil {
-		return catSum, ErrorSummary
+		return catSum, ErrSummary
 	}
 	return catSum, nil
 }
@@ -98,7 +82,7 @@ func SumByCategoriesWithMutex(transactions *[]Transaction, owner int, parts int3
 	}
 	wg.Wait()
 	if catSum == nil {
-		return catSum, ErrorSummary
+		return catSum, ErrSummary
 	}
 	return catSum, error
 }
@@ -127,7 +111,7 @@ func SumByCategoriesWithChannels(transactions *[]Transaction, owner int, parts i
 		}
 	}
 	if catSum == nil {
-		return catSum, ErrorSummary
+		return catSum, ErrSummary
 	}
 	return catSum, error
 
@@ -158,7 +142,7 @@ func SumByCategoriesWithMutex2(transactions *[]Transaction, owner int, parts int
 			for _, t := range part {
 				if t.OwnerId == owner {
 					mu.Lock()
-					catSum[t.Mcc] = catSum[t.Mcc] + t.Amount
+					catSum[t.MCC] = catSum[t.MCC] + t.Amount
 					mu.Unlock()
 				}
 			}
@@ -167,7 +151,7 @@ func SumByCategoriesWithMutex2(transactions *[]Transaction, owner int, parts int
 	}
 	wg.Wait()
 	if catSum == nil {
-		return catSum, ErrorSummary
+		return catSum, ErrSummary
 	}
-	return catSum, error
+	return catSum, nil
 }
