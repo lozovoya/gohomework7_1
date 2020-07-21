@@ -153,5 +153,5 @@ func SumByCategoriesWithMutex2(transactions *[]Transaction, owner int, parts int
 	if catSum == nil {
 		return catSum, ErrSummary
 	}
-	return catSum, error
+	return catSum, nil
 }
