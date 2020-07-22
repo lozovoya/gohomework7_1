@@ -8,7 +8,7 @@ import (
 
 func TestSumByCategories(t *testing.T) {
 	type args struct {
-		transactions *[]Transaction
+		transactions []Transaction
 		owner        int
 	}
 
@@ -17,29 +17,23 @@ func TestSumByCategories(t *testing.T) {
 		name       string
 		args       args
 		wantCatSum map[string]int64
-		wantErr    error
 	}{
 		{
 			name: "По соточке",
 			args: args{
-				transactions: &transactions,
+				transactions: transactions,
 				owner:        0,
 			},
 			wantCatSum: map[string]int64{
-				"5010": 100000000,
-				"5020": 200000000,
+				"5010": 10000000,
+				"5020": 20000000,
 			},
-			wantErr: nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCatSum, err := SumByCategories(tt.args.transactions, tt.args.owner)
-			if err != tt.wantErr {
-				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			gotCatSum := SumByCategories(tt.args.transactions, tt.args.owner)
 			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
 				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
 			}
@@ -49,7 +43,7 @@ func TestSumByCategories(t *testing.T) {
 
 func TestSumByCategoriesWithMutex(t *testing.T) {
 	type args struct {
-		transactions *[]Transaction
+		transactions []Transaction
 		owner        int
 		parts        int32
 	}
@@ -64,13 +58,13 @@ func TestSumByCategoriesWithMutex(t *testing.T) {
 		{
 			name: "По соточке",
 			args: args{
-				transactions: &transactions,
+				transactions: transactions,
 				owner:        0,
 				parts:        100,
 			},
 			wantCatSum: map[string]int64{
-				"5010": 100000000,
-				"5020": 200000000,
+				"5010": 10000000,
+				"5020": 20000000,
 			},
 			wantErr: nil,
 		},
@@ -78,11 +72,7 @@ func TestSumByCategoriesWithMutex(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCatSum, err := SumByCategoriesWithMutex(tt.args.transactions, tt.args.owner, tt.args.parts)
-			if err != tt.wantErr {
-				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			gotCatSum := SumByCategoriesWithMutex(tt.args.transactions, tt.args.owner, tt.args.parts)
 			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
 				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
 			}
@@ -92,7 +82,7 @@ func TestSumByCategoriesWithMutex(t *testing.T) {
 
 func TestSumByCategoriesWithChannels(t *testing.T) {
 	type args struct {
-		transactions *[]Transaction
+		transactions []Transaction
 		owner        int
 		parts        int32
 	}
@@ -107,13 +97,13 @@ func TestSumByCategoriesWithChannels(t *testing.T) {
 		{
 			name: "По соточке",
 			args: args{
-				transactions: &transactions,
+				transactions: transactions,
 				owner:        0,
 				parts:        100,
 			},
 			wantCatSum: map[string]int64{
-				"5010": 100000000,
-				"5020": 200000000,
+				"5010": 10000000,
+				"5020": 20000000,
 			},
 			wantErr: nil,
 		},
@@ -121,11 +111,7 @@ func TestSumByCategoriesWithChannels(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCatSum, err := SumByCategoriesWithChannels(tt.args.transactions, tt.args.owner, tt.args.parts)
-			if err != tt.wantErr {
-				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			gotCatSum := SumByCategoriesWithChannels(tt.args.transactions, tt.args.owner, tt.args.parts)
 			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
 				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
 			}
@@ -135,7 +121,7 @@ func TestSumByCategoriesWithChannels(t *testing.T) {
 
 func TestSumByCategoriesWithMutex2(t *testing.T) {
 	type args struct {
-		transactions *[]Transaction
+		transactions []Transaction
 		owner        int
 		parts        int32
 	}
@@ -150,13 +136,13 @@ func TestSumByCategoriesWithMutex2(t *testing.T) {
 		{
 			name: "По соточке",
 			args: args{
-				transactions: &transactions,
+				transactions: transactions,
 				owner:        0,
 				parts:        100,
 			},
 			wantCatSum: map[string]int64{
-				"5010": 100000000,
-				"5020": 200000000,
+				"5010": 10000000,
+				"5020": 20000000,
 			},
 			wantErr: nil,
 		},
@@ -164,11 +150,7 @@ func TestSumByCategoriesWithMutex2(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCatSum, err := SumByCategoriesWithMutex2(tt.args.transactions, tt.args.owner, tt.args.parts)
-			if err != tt.wantErr {
-				t.Errorf("SumByCategories() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			gotCatSum := SumByCategoriesWithMutex2(tt.args.transactions, tt.args.owner, tt.args.parts)
 			if !reflect.DeepEqual(gotCatSum, tt.wantCatSum) {
 				t.Errorf("SumByCategories() gotCatSum = %v, want %v", gotCatSum, tt.wantCatSum)
 			}
@@ -178,7 +160,7 @@ func TestSumByCategoriesWithMutex2(t *testing.T) {
 
 func makeTestTransactions() []Transaction {
 	const users = 10_000
-	const transactionsPerUser = 10_000
+	const transactionsPerUser = 1_000
 	const transactionAmount1 = 1_00
 	const transactionAmount2 = 2_00
 	const testcategory1 = "5010"
@@ -214,12 +196,12 @@ func makeTestTransactions() []Transaction {
 func BenchmarkCategorization(b *testing.B) {
 	transactions := makeTestTransactions()
 	want := map[string]int64{
-		"5010": 100000000,
-		"5020": 200000000,
+		"5010": 10000000,
+		"5020": 20000000,
 	}
 	b.ResetTimer() // сбрасываем таймер, т.к. сама генерация транзакций достаточно ресурсоёмка
 	for i := 0; i < b.N; i++ {
-		result, _ := SumByCategories(&transactions, 0)
+		result := SumByCategories(transactions, 0)
 		b.StopTimer() // останавливаем таймер, чтобы время сравнения не учитывалось
 		if !reflect.DeepEqual(result, want) {
 			b.Fatalf("invalid result, got %v, want %v", result, want)
@@ -231,12 +213,12 @@ func BenchmarkCategorization(b *testing.B) {
 func BenchmarkCategorizationWithMutex(b *testing.B) {
 	transactions := makeTestTransactions()
 	want := map[string]int64{
-		"5010": 100000000,
-		"5020": 200000000,
+		"5010": 10000000,
+		"5020": 20000000,
 	}
 	b.ResetTimer() // сбрасываем таймер, т.к. сама генерация транзакций достаточно ресурсоёмка
 	for i := 0; i < b.N; i++ {
-		result, _ := SumByCategoriesWithMutex(&transactions, 0, 100)
+		result := SumByCategoriesWithMutex(transactions, 0, 100)
 		b.StopTimer() // останавливаем таймер, чтобы время сравнения не учитывалось
 		if !reflect.DeepEqual(result, want) {
 			b.Fatalf("invalid result, got %v, want %v", result, want)
@@ -248,12 +230,12 @@ func BenchmarkCategorizationWithMutex(b *testing.B) {
 func BenchmarkCategorizationWithChannels(b *testing.B) {
 	transactions := makeTestTransactions()
 	want := map[string]int64{
-		"5010": 100000000,
-		"5020": 200000000,
+		"5010": 10000000,
+		"5020": 20000000,
 	}
 	b.ResetTimer() // сбрасываем таймер, т.к. сама генерация транзакций достаточно ресурсоёмка
 	for i := 0; i < b.N; i++ {
-		result, _ := SumByCategoriesWithChannels(&transactions, 0, 100)
+		result := SumByCategoriesWithChannels(transactions, 0, 100)
 		b.StopTimer() // останавливаем таймер, чтобы время сравнения не учитывалось
 		if !reflect.DeepEqual(result, want) {
 			b.Fatalf("invalid result, got %v, want %v", result, want)
@@ -265,12 +247,12 @@ func BenchmarkCategorizationWithChannels(b *testing.B) {
 func BenchmarkCategorizationWithMutex2(b *testing.B) {
 	transactions := makeTestTransactions()
 	want := map[string]int64{
-		"5010": 100000000,
-		"5020": 200000000,
+		"5010": 10000000,
+		"5020": 20000000,
 	}
 	b.ResetTimer() // сбрасываем таймер, т.к. сама генерация транзакций достаточно ресурсоёмка
 	for i := 0; i < b.N; i++ {
-		result, _ := SumByCategoriesWithMutex2(&transactions, 0, 100)
+		result := SumByCategoriesWithMutex2(transactions, 0, 100)
 		b.StopTimer() // останавливаем таймер, чтобы время сравнения не учитывалось
 		if !reflect.DeepEqual(result, want) {
 			b.Fatalf("invalid result, got %v, want %v", result, want)

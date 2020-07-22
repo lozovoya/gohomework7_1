@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	card "github.com/lozovoya/gohomework7_1/cmd/pkg"
+	card2 "github.com/lozovoya/gohomework7_1/pkg/card"
 	"os"
 	"runtime/trace"
 )
@@ -22,10 +22,10 @@ func main() {
 	defer trace.Stop()
 
 	const maxAmount = 1_000_000
-	const numberOfTransactions = 1000000
+	const numberOfTransactions = 1_000
 	const parts = 100
 
-	mccList := card.Mcc{
+	mccList := card2.Mcc{
 		"5010": "Финансы",
 		"6020": "Супермаркеты",
 		"7030": "Наличные",
@@ -33,7 +33,7 @@ func main() {
 		"9050": "Мобильная связь",
 	}
 
-	userList := card.User{
+	userList := card2.User{
 		0: "Ivan Ivanov",
 		1: "Petr Petrov",
 		2: "Dart Vaider",
@@ -41,44 +41,28 @@ func main() {
 		4: "Vla Pu",
 	}
 
-	transactions := make([]card.Transaction, 0, numberOfTransactions)
+	transactions := make([]card2.Transaction, 0, numberOfTransactions)
 	transactions = nil
 
-	err = card.GenerateTransactions(&transactions, maxAmount, numberOfTransactions, mccList, userList, parts)
+	err = card2.GenerateTransactions(&transactions, maxAmount, numberOfTransactions, mccList, userList)
 	if err != nil {
-		fmt.Println(card.ErrorTransactionFulfill)
+		fmt.Println(card2.ErrTransactionFulfill)
 		os.Exit(2)
 	}
 
-	ts, err := card.SumByCategories(&transactions, 0)
-	if err != nil {
-		fmt.Println(card.ErrorSummary)
-		os.Exit(2)
-	}
+	ts := card2.SumByCategories(transactions, 0)
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary:", ts)
 
-	ts, err = card.SumByCategoriesWithMutex(&transactions, 0, parts)
-	if err != nil {
-		fmt.Println(card.ErrorSummary)
-		os.Exit(2)
-	}
+	ts = card2.SumByCategoriesWithMutex(transactions, 0, parts)
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary with mutex:", ts)
 
-	ts, err = card.SumByCategoriesWithChannels(&transactions, 0, parts)
-	if err != nil {
-		fmt.Println(card.ErrorSummary)
-		os.Exit(2)
-	}
+	ts = card2.SumByCategoriesWithChannels(transactions, 0, parts)
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary with mutex:", ts)
 
-	ts, err = card.SumByCategoriesWithMutex2(&transactions, 0, parts)
-	if err != nil {
-		fmt.Println(card.ErrorSummary)
-		os.Exit(2)
-	}
+	ts = card2.SumByCategoriesWithMutex2(transactions, 0, parts)
 	fmt.Println("for user:", userList[0])
 	fmt.Println("Transactions summary with mutex2:", ts)
 }
