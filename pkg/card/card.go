@@ -18,7 +18,7 @@ type Transaction struct {
 type Mcc map[string]string
 type User map[int]string
 
-func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mccList Mcc, userList User) error {
+func GenerateTransactions(transactions []Transaction, max int, amount int64, mccList Mcc, userList User) error {
 
 	var mccTemp = make(map[int]string)
 	i := 0
@@ -30,9 +30,9 @@ func GenerateTransactions(transactions *[]Transaction, max int, amount int64, mc
 	for i := int64(0); i < amount; i++ {
 		rand.Seed(int64(time.Now().Nanosecond()))
 		t := Transaction{OwnerId: rand.Intn(len(userList)), Amount: int64(rand.Intn(max)), Mcc: mccTemp[rand.Intn(len(mccTemp))]}
-		*transactions = append(*transactions, t)
+		transactions = append(transactions, t)
 	}
-	if *transactions == nil {
+	if len(transactions) == 0 {
 		return ErrTransactionFulfill
 	}
 	return nil
@@ -124,7 +124,6 @@ func SumByCategoriesWithMutex2(transactions []Transaction, owner int, parts int3
 	for i := int32(0); i < parts; i++ {
 		part := input[i*partSize : (i+1)*partSize]
 		go func() {
-			//partSum, _ := SumByCategories(&part, owner)
 			for _, t := range part {
 				if t.OwnerId == owner {
 					mu.Lock()

@@ -41,10 +41,9 @@ func main() {
 		4: "Vla Pu",
 	}
 
-	transactions := make([]card2.Transaction, 0, numberOfTransactions)
-	transactions = nil
+	var transactions []card2.Transaction
 
-	err = card2.GenerateTransactions(&transactions, maxAmount, numberOfTransactions, mccList, userList)
+	err = card2.GenerateTransactions(transactions, maxAmount, numberOfTransactions, mccList, userList)
 	if err != nil {
 		fmt.Println(card2.ErrTransactionFulfill)
 		os.Exit(2)
